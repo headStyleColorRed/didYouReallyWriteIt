@@ -5,11 +5,22 @@ import PackageDescription
 
 let package = Package(
     name: "didYouReallyWriteIt",
+    platforms: [
+        .macOS(.v14),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/ml-explore/mlx-swift", from: "0.31.0"),
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
             name: "didYouReallyWriteIt",
+            dependencies: [
+                .product(name: "MLX", package: "mlx-swift"),
+                .product(name: "MLXNN", package: "mlx-swift"),
+                .product(name: "MLXOptimizers", package: "mlx-swift")
+            ],
             swiftSettings: [
                 .enableUpcomingFeature("ApproachableConcurrency"),
             ],
