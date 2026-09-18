@@ -1,34 +1,82 @@
 import MLX
+import MLXNN
+import Foundation
+import MLXOptimizers
+
+class SimpleRegressionModel: Module {
+    @ParameterInfo var parameter: MLXArray
+
+    override init() {
+        _parameter.wrappedValue = MLXArray(3.0)
+        super.init()
+    }
+
+    var url: URL {
+        URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            .appendingPathComponent("model.safetensors")
+    }
+
+    func callAsFunction(_ input: MLXArray) -> MLXArray {
+        return parameter * input
+    }
+
+    func recoverParameters() {
+        do {
+            let parameters = try loadArrays(url: url)
+            update(parameters: ModuleParameters.unflattened(parameters))
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+}
 
 @main
 struct DidYouReallyWriteIt {
     static func main() {
+        // Declare variables
+        let model = SimpleRegressionModel()
+        model.recoverParameters()
+
+        print("Model loaded parameter: ", model.parameter.item(Float.self))
+
         let inputValue = MLXArray(2.0)
         let targetValue = MLXArray(10.0)
-        var parameter = MLXArray(3.0)
-        let learningRate: Float = 0.01
+        let learningRate: Float = 0.001
 
-        let tolerance: Float = 0.001
-        let maxIterations: Int = 5
-
-        let lossMethod: (MLXArray) -> MLXArray = { parameter in
-            let prediction = inputValue * parameter
-            let error = prediction - targetValue
-            let loss = error * error
-            return loss
+        // Implement loss method
+        func lossMethod(model: SimpleRegressionModel, input: MLXArray, target: MLXArray) -> MLXArray {
+            let prediction = model(input)
+            let error = prediction - target
+            return error * error
         }
 
-        var loss: MLXArray = lossMethod(parameter)
-        let gradientMethod = grad(lossMethod)
+        let lossAndGradientMethod = valueAndGrad(model: model, lossMethod)
+        let optimizer = SGD(learningRate: learningRate)
+        var (loss, _) = lossAndGradientMethod(model, inputValue, targetValue)
 
-        var iteration: Int = 0
-        while loss.item(Float.self) > tolerance && iteration < maxIterations {
-            iteration += 1
+        // Update the model's parameter
+        while loss.item(Float.self) > 0.001 {
+            // Get loss and gradients
+            let (loopLoss, loopGradient) = lossAndGradientMethod(model, inputValue, targetValue)
 
-            let gradient = gradientMethod(parameter)
+            guard loopLoss.item(Float.self) > 0.001 else { break }
+            // Update parameter
+            optimizer.update(model: model, gradients: loopGradient)
+            // Update loss loop
+            loss = loopLoss
+        }
 
-            parameter = parameter - learningRate * gradient
-            loss = lossMethod(parameter)
+        // Save the paremeter
+        let parameters = Dictionary(uniqueKeysWithValues: model.parameters().flattened())
+        do {
+            try save(arrays: parameters,
+                     metadata: [:],
+                     url: model.url)
+
+            print("Saved model's parameters at \(model.url.absoluteString)")
+
+        } catch {
+            print(error.localizedDescription)
         }
     }
 }
