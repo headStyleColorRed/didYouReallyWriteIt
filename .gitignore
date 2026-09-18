@@ -1,0 +1,56 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Swift Package Manager
+.build/
+/Packages/
+Package.pins
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/
+
+# Xcode
+*.xcodeproj
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+build/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Dependencies (CocoaPods / Carthage / Accio)
+Pods/
+Carthage/Checkouts
+Carthage/Build/
+Dependencies/
+.accio/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Secrets & credentials
+.netrc
+.env
+.env.*
+*.pem
+
+# Editor / IDE (local only)
+.idea/
+*.swp
+*~
