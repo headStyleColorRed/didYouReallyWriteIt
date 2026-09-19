@@ -30,9 +30,8 @@ class SimpleRegressionModel: Module {
     }
 }
 
-@main
-struct DidYouReallyWriteIt {
-    static func main() {
+struct SimpleTraining {
+    func train() {
         // Declare variables
         let model = SimpleRegressionModel()
         model.recoverParameters()
