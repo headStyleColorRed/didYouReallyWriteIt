@@ -24,7 +24,7 @@ import Foundation
 @main
 struct DidYouReallyWriteIt {
     static func main() async throws {
-        let input = "We need to tackle the subtle part we postponed: how to get the content IDs without <s> and </s>, and then add the special tokens independently to every window."
+        let input = "Hello world"
 
         // Normalizing
         let normalizer = Normalizer()
@@ -34,15 +34,16 @@ struct DidYouReallyWriteIt {
         let tokenizer = try await DYRWITokenizer(tokenizer: ProjectConstants.tokenizer)
         let tokenData: TokenizationData = try tokenizer.encode(normalizedInput: normalizedInput)
 
-        // Creating windows
+        // Creating windows with bos/eos and padding
         let windowManager = WindowManager()
         let windows = windowManager.createWindows(data: tokenData)
 
         for (index, window) in windows.enumerated() {
             print("---")
             print("Window: \(index)")
-            for item in window {
-                print("  - \(item)")
+            for (index, item) in window.tokenIdentifiers.enumerated() {
+//                print("   item - \(item)")
+                print("   mask - \(window.attentionMask[index])")
             }
         }
     }

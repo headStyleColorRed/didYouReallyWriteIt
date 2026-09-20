@@ -12,6 +12,7 @@ struct TokenizationData {
     let tokens: [Int]
     let bosTokenID: Int
     let eosTokenID: Int
+    let padTokenID: Int
 }
 
 class DYRWITokenizer {
@@ -28,7 +29,8 @@ class DYRWITokenizer {
             throw "Couldn't load tokenizer".asError
         }
         guard let bosTokenId = tokenizer?.bosTokenId ?? tokenizer?.convertTokenToId("<s>"),
-                let eosTokenId = tokenizer?.eosTokenId ?? tokenizer?.convertTokenToId("</s>") else {
+              let eosTokenId = tokenizer?.eosTokenId ?? tokenizer?.convertTokenToId("</s>"),
+              let padTokenId = tokenizer?.convertTokenToId("<pad>") else {
             throw "Couldn't retrieve sentence delimeters".asError
         }
 
@@ -47,7 +49,8 @@ class DYRWITokenizer {
 
         return TokenizationData(tokens: contentTokens,
                                 bosTokenID: bosTokenId,
-                                eosTokenID: eosTokenId)
+                                eosTokenID: eosTokenId,
+                                padTokenID: padTokenId)
     }
 
 
@@ -58,23 +61,4 @@ class DYRWITokenizer {
         tokenizer = try await AutoTokenizer.from(pretrained: tokenizerName)
     }
 
-
-//    private func addPadding(tokens: [Int], maxLength: Int) throws -> ([Int], [Int]) {
-//        guard let paddingTokenIdentifier = tokenizer?.convertTokenToId(SpecialTokens.padding.rawValue) else {
-//            throw "Couldn't find padding token identifier".asError
-//        }
-//
-//        var paddedTokenIdentifiers: [Int] = tokens
-//        var attentionMask: [Int] = Array(repeating: 1, count: tokens.count)
-//
-//        guard tokens.count <= maxLength else { throw "Token count exceeds maximum sequence length".asError }
-//
-//        let padArray: [Int] = Array(repeating: paddingTokenIdentifier, count: maxLength - tokens.count)
-//        let maskArray: [Int] = Array(repeating: 0, count: maxLength - tokens.count)
-//
-//        paddedTokenIdentifiers.append(contentsOf: padArray)
-//        attentionMask.append(contentsOf: maskArray)
-//
-//        return (paddedTokenIdentifiers, attentionMask)
-//    }
 }

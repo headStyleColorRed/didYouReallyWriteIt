@@ -10,8 +10,6 @@ import Foundation
 struct ProjectConstants {
     static let tokenizer: String = "FacebookAI/roberta-base"
 
-    // We are substracting 2 because we don't want
-    // to count the start/end of the input
-    static let windowSize: Int = 512 - 2
+    static let windowSize: Int = 10
     static let overlap: Float = 0.5
 }
