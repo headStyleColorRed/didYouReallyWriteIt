@@ -32,11 +32,11 @@ struct DidYouReallyWriteIt {
 
         // Encoding
         let tokenizer = try await DYRWITokenizer(tokenizer: ProjectConstants.tokenizer)
-        let tokens = try tokenizer.encode(normalizedInput: normalizedInput)
+        let tokenData: TokenizationData = try tokenizer.encode(normalizedInput: normalizedInput)
 
         // Creating windows
-        let windowManager = DYRWIWindowManager()
-        let windows = windowManager.createWindows(tokenIdentifiers: tokens)
+        let windowManager = WindowManager()
+        let windows = windowManager.createWindows(data: tokenData)
 
         for (index, window) in windows.enumerated() {
             print("---")

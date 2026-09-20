@@ -8,6 +8,12 @@
 import Foundation
 import Tokenizers
 
+struct TokenizationData {
+    let tokens: [Int]
+    let bosTokenID: Int
+    let eosTokenID: Int
+}
+
 class DYRWITokenizer {
     let tokenizerName: String
     var tokenizer: Tokenizer?
@@ -17,9 +23,31 @@ class DYRWITokenizer {
         try await loadTokenizer()
     }
 
-    func encode(normalizedInput: String) throws -> [Int] {
-        guard let encodedInput = tokenizer?.encode(text: normalizedInput) else { throw "Won't happen".asError }
-        return encodedInput
+    func encode(normalizedInput: String) throws -> TokenizationData {
+        guard let encodedInput = tokenizer?.encode(text: normalizedInput, addSpecialTokens: false) else {
+            throw "Couldn't load tokenizer".asError
+        }
+        guard let bosTokenId = tokenizer?.bosTokenId ?? tokenizer?.convertTokenToId("<s>"),
+                let eosTokenId = tokenizer?.eosTokenId ?? tokenizer?.convertTokenToId("</s>") else {
+            throw "Couldn't retrieve sentence delimeters".asError
+        }
+
+        // swift-transformers' RoBERTa post-processor currently adds BOS/EOS even when
+        // addSpecialTokens is false. Detect that behavior with empty input so a
+        // literal <s> or </s> in the text is not mistaken for an added delimiter.
+        let emptyEncoding = tokenizer?.encode(text: "", addSpecialTokens: false) ?? []
+        let contentTokens: [Int]
+        if emptyEncoding == [bosTokenId, eosTokenId],
+           encodedInput.first == bosTokenId,
+           encodedInput.last == eosTokenId {
+            contentTokens = Array(encodedInput.dropFirst().dropLast())
+        } else {
+            contentTokens = encodedInput
+        }
+
+        return TokenizationData(tokens: contentTokens,
+                                bosTokenID: bosTokenId,
+                                eosTokenID: eosTokenId)
     }
 
 

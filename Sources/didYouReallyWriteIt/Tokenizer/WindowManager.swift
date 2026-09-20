@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DYRWIWindowManager {
+struct WindowManager {
     // We calculate the stride based on the windoSize to overlap relation
     private var stride: Int {
         return Int(Float(ProjectConstants.windowSize) * ProjectConstants.overlap)
@@ -15,7 +15,8 @@ struct DYRWIWindowManager {
 
     // We need to return an array of arrays that have at maximum
     // the stride length
-    func createWindows(tokenIdentifiers : [Int]) -> [[Int]] {
+    func createWindows(data: TokenizationData) -> [[Int]] {
+        let tokenIdentifiers = data.tokens
         let tokenCount = tokenIdentifiers.count
         let windowsToCreate = windowsNeeded(tokenCount: tokenCount)
         var windowArray: [ArraySlice<Int>] = []
@@ -28,11 +29,16 @@ struct DYRWIWindowManager {
             windowArray.append(window)
         }
 
-        return windowArray.map({ Array($0) })
+        let windowArrayWithDelimeterTokens = addSpecialTokens(windowArray.map({ Array($0) }), data)
+        return windowArrayWithDelimeterTokens
     }
 
 
-    func windowsNeeded(tokenCount: Int) -> Int {
+    private func addSpecialTokens(_ windowArray: [[Int]], _ data: TokenizationData) -> [[Int]] {
+        return windowArray.map({ [data.bosTokenID] + $0 + [data.eosTokenID] })
+    }
+
+    private func windowsNeeded(tokenCount: Int) -> Int {
         // If there aren't enough tokens, we create a single windoow
         guard tokenCount > ProjectConstants.windowSize else { return 1 }
 
