@@ -67,10 +67,10 @@ struct WindowManager {
     }
 
     private func windowsNeeded(tokenCount: Int) -> Int {
-        // If there aren't enough tokens, we create a single windoow
-        guard tokenCount > ProjectConstants.windowSize else { return 1 }
+        // If there aren't enough tokens, we create a single window
+        guard tokenCount > contentWindowSize else { return 1 }
 
-        let remainingTokens = tokenCount - ProjectConstants.windowSize
+        let remainingTokens = tokenCount - contentWindowSize
 
         // We then calculate how many windows are needed
         let maxAmountOfWindows = ((remainingTokens + stride - 1) / stride) + 1

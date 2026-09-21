@@ -41,7 +41,7 @@ struct DidYouReallyWriteIt {
         for (index, window) in windows.enumerated() {
             print("---")
             print("Window: \(index)")
-            for (index, item) in window.tokenIdentifiers.enumerated() {
+            for (index, _) in window.tokenIdentifiers.enumerated() {
 //                print("   item - \(item)")
                 print("   mask - \(window.attentionMask[index])")
             }

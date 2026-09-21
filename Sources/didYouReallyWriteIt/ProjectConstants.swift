@@ -10,6 +10,6 @@ import Foundation
 struct ProjectConstants {
     static let tokenizer: String = "FacebookAI/roberta-base"
 
-    static let windowSize: Int = 10
+    static let windowSize: Int = 512
     static let overlap: Float = 0.5
 }
