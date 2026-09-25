@@ -35,6 +35,10 @@ import Foundation
 // ↓
 // window logits
 
+// Temporary import
+import MLX
+import MLXNN
+
 @main
 struct DidYouReallyWriteIt {
     static func main() async throws {
@@ -44,13 +48,13 @@ struct DidYouReallyWriteIt {
         let preprocessor = Preprocessing(input: input)
         let windows = try await preprocessor.call()
 
-        for (index, window) in windows.enumerated() {
-            print("---")
-            print("Window: \(index)")
-            for (index, item) in window.tokenIdentifiers.enumerated() {
-                print("   item - \(item)")
-                print("   mask - \(window.attentionMask[index])")
-            }
-        }
+        // Small clasifier for a single window
+        guard let firstWindow = windows.first else { throw "Couldn't get first window".asError }
+
+        let tokenIndentifiers = MLXArray(firstWindow.tokenIdentifiers)
+        let embedding = Embedding(embeddingCount: 50_265, dimensions: 23)
+        let tokenEmbeddings = embedding(tokenIndentifiers)
+
+        print(tokenEmbeddings)
     }
 }
