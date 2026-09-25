@@ -7,42 +7,48 @@
 
 import Foundation
 
-//text
-//↓
-//normalize
-//↓
-//tokenize / content IDs
-//↓
-//split content IDs into windows
-//↓
-//add special tokens to EACH window
-//↓
-//pad last window
-//↓
-//create mask
+// PREPROCESSING
+//
+// text
+// ↓
+// normalize
+// ↓
+// tokenize / content IDs
+// ↓
+// split content IDs into windows
+// ↓
+// add special tokens to EACH window
+// ↓
+// pad each window
+// ↓
+// create attention mask
+//
+// MODEL
+//
+// each window
+// ↓
+// embeddings
+// ↓
+// masked pooling
+// ↓
+// classification
+// ↓
+// window logits
 
 @main
 struct DidYouReallyWriteIt {
     static func main() async throws {
         let input = "Hello world"
 
-        // Normalizing
-        let normalizer = Normalizer()
-        let normalizedInput = normalizer.normalize(input)
-
-        // Encoding
-        let tokenizer = try await DYRWITokenizer(tokenizer: ProjectConstants.tokenizer)
-        let tokenData: TokenizationData = try tokenizer.encode(normalizedInput: normalizedInput)
-
-        // Creating windows with bos/eos and padding
-        let windowManager = WindowManager()
-        let windows = windowManager.createWindows(data: tokenData)
+        // Preprocessing
+        let preprocessor = Preprocessing(input: input)
+        let windows = try await preprocessor.call()
 
         for (index, window) in windows.enumerated() {
             print("---")
             print("Window: \(index)")
-            for (index, _) in window.tokenIdentifiers.enumerated() {
-//                print("   item - \(item)")
+            for (index, item) in window.tokenIdentifiers.enumerated() {
+                print("   item - \(item)")
                 print("   mask - \(window.attentionMask[index])")
             }
         }
