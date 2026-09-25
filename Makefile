@@ -10,7 +10,7 @@ help:
 	@echo "  make clean  - clean build artifacts"
 
 test:
-	swift test
+	xcodebuild test -scheme didYouReallyWriteIt-Package -destination 'platform=macOS,arch=arm64'
 
 build:
 	swift build

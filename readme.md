@@ -19,6 +19,12 @@ The project focuses on:
 - Swift Package Manager
 - Apple silicon
 
+## Tests
+
+Run `make test` from the project directory. This uses `xcodebuild` to compile
+MLX's Metal shaders and run the Swift tests. The current MLX Swift dependency
+does not support building those shaders with the `swift test` command.
+
 ## Philosophy
 
 AI-text detection is inherently uncertain. A detector score should be treated as a signal, not as proof of authorship.
@@ -28,4 +34,3 @@ When the evidence is weak, the system should prefer uncertainty over false confi
 ## License
 
 MIT
-
