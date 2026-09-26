@@ -9,47 +9,37 @@ import Foundation
 import MLX
 import MLXNN
 
-struct WindowClassifier {
+final class TinyTextClassifier: Module {
+    @ModuleInfo var embedding: Embedding
+    @ModuleInfo var classifier: Linear
 
+    init(embedding: Embedding = Embedding(embeddingCount: 50_265, dimensions: 23),
+         classifier: Linear = Linear(23, 2)) {
+        self.embedding = embedding
+        self.classifier = classifier
+        super.init()
+    }
 
-    func callAsFunction(_ window: TokenWindow) {
+    func callAsFunction(_ tokenIdentifiers: MLXArray, _ attentionMask: MLXArray) -> MLXArray {
         // Convert the tokens array into an MLX one
-        let tokenIndentifiers = MLXArray(window.tokenIdentifiers)
-        // Create empty matrix
-        let embedding = Embedding(embeddingCount: 50_265, dimensions: 23)
+        let tokenIdentifiers = tokenIdentifiers
         // Fill the the matrix with the current tokens
-        let tokenEmbeddings = embedding(tokenIndentifiers)
+        let tokenEmbeddings = embedding(tokenIdentifiers)
         // Convert the mask array into an MLX one
-        let attentionMask = MLXArray(window.attentionMask)
+        let attentionMask = attentionMask
         // Convert the attention mask into a two dimensional array
         let expandedAttentionMask = attentionMask[.ellipsis, .newAxis]
         // Prune the masked token embeddings
         let maskedEmbeddings = tokenEmbeddings * expandedAttentionMask
-        // Add embeddings and do.. pooling?
+        // Sume the valid embeddings
         let embeddingSum: MLXArray = maskedEmbeddings.sum(axis: 0)
         // Divide by the valid amount of embeddings
-        let validEmbeddingsCount = window.attentionMask.filter({ $0 == 1}).count
+        let validEmbeddingsCount = attentionMask.sum()
         let pooledEmbedding = embeddingSum / validEmbeddingsCount
-        // Create classifier
-        let classifier = Linear(23, 2)
-        // Run our result through the classifier
+        // Produce the classification logits
         let logits = classifier(pooledEmbedding)
 
-        let targetLabel = MLXArray(1)
-        let loss = crossEntropy(logits: logits,
-                                targets: targetLabel,
-                                reduction: .mean)
-
-
-
-        print("Token embeddings:", tokenEmbeddings.shape)
-        print("Masked embeddings:", maskedEmbeddings.shape)
-        print("Embedding sum:", embeddingSum.shape)
-        print("Pooled result:", pooledEmbedding.shape)
-        print("Embedding: ", pooledEmbedding)
-        print("Logits shape: ", logits.shape)
-        print("Logits:", logits)
-        print("Loss: ", loss)
+        return logits
     }
 
 }

@@ -7,9 +7,15 @@
 
 import Foundation
 
+import MLX
 struct TokenWindow {
-    let tokenIdentifiers: [Int]
-    let attentionMask: [Int]
+    let tokenIdentifiers: MLXArray
+    let attentionMask: MLXArray
+
+    init(tokenIdentifiers: [Int], attentionMask: [Int]) {
+        self.tokenIdentifiers = MLXArray(tokenIdentifiers)
+        self.attentionMask = MLXArray(attentionMask)
+    }
 }
 
 struct WindowManager {
